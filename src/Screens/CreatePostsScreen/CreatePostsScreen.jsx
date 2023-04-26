@@ -9,9 +9,15 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { useSelector } from "react-redux";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
 import { Camera } from "expo-camera";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
+
+import { storage } from "../../firebase/config";
+import { db } from "../../firebase/config";
 
 const upload = "Upload photo";
 const edit = "Edit photo";
@@ -21,9 +27,11 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(null);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+
+  const { userId, nickname } = useSelector((state) => state.auth);
 
   useEffect(() => {
     (async () => {
@@ -35,11 +43,40 @@ const CreatePostsScreen = ({ navigation }) => {
     })();
   }, []);
 
+  const uploadPhotoToServer = async () => {
+    const response = await fetch(photo);
+    const file = await response.blob();
+    const id = Date.now().toString();
+
+    const storageRef = await ref(storage, `postImages/${id}`);
+
+    await uploadBytes(storageRef, file);
+
+    const storeLink = await getDownloadURL(ref(storageRef));
+    return storeLink;
+  };
+
+  const uploadPostToServer = async () => {
+    try {
+      const photo = await uploadPhotoToServer();
+      const docRef = await addDoc(collection(db, "posts"), {
+        photo,
+        name,
+        location: location.coords,
+        nickname,
+        userId,
+      });
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+
   const takePhoto = async () => {
     try {
       if (cameraRef) {
         const takenPhoto = await cameraRef.takePictureAsync();
         const location = await Location.getCurrentPositionAsync();
+        setLocation(location);
         setLatitude(location.coords.latitude);
         setLongitude(location.coords.longitude);
         setPhoto(takenPhoto.uri);
@@ -50,16 +87,13 @@ const CreatePostsScreen = ({ navigation }) => {
   };
 
   const sendPhoto = () => {
-    navigation.navigate("DefaultScreen", {
-      photo,
-      latitude,
-      longitude,
-      name,
-      location,
-    });
+    uploadPostToServer();
+    navigation.navigate("DefaultScreen");
     setPhoto(null);
     setCameraRef(null);
+    setName("");
   };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
@@ -109,7 +143,6 @@ const CreatePostsScreen = ({ navigation }) => {
           placeholder="Location"
           placeholderTextColor={"#BDBDBD"}
           style={styles.input}
-          onChangeText={(value) => setLocation(value)}
         />
 
         {photo && (

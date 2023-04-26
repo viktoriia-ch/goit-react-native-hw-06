@@ -1,6 +1,7 @@
 import { AntDesign, Ionicons, Feather } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
+import { useDispatch } from "react-redux";
+import { authSingOutUser } from "../../redux/auth/authOperations";
 import { TouchableOpacity, StyleSheet } from "react-native";
 
 import PostsScreen from "../PostsScreen/PostsScreen";
@@ -10,6 +11,10 @@ import CreatePostsScreen from "../CreatePostsScreen/CreatePostsScreen";
 const MainTab = createBottomTabNavigator();
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const singOut = () => {
+    dispatch(authSingOutUser());
+  };
   return (
     <MainTab.Navigator
       screenOptions={{
@@ -25,7 +30,7 @@ const Home = ({ navigation }) => {
             <TouchableOpacity
               activeOpacity={0.5}
               style={styles.exitBtn}
-              // onPress={() => navigation.navigate("Login")}
+              onPress={singOut}
             >
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </TouchableOpacity>

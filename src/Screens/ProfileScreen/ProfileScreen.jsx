@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-
+import { useDispatch } from "react-redux";
 import {
   View,
   Text,
@@ -8,17 +8,22 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import { authSingOutUser } from "../../redux/auth/authOperations";
 
 const ProfileScreen = () => {
+  const dispatch = useDispatch();
+  const singOut = () => {
+    dispatch(authSingOutUser());
+  };
   return (
     <View style={styles.container}>
       <ImageBackground
         style={styles.imageBackground}
-        source={require("../../assets/images/background-img.png")}
+        source={require("../../../assets/images/background-img.png")}
       >
         <View style={styles.profileBlock}>
           <View style={styles.photoBlock}>
-            <Image source={require("../../assets/images/User_large.png")} />
+            <Image source={require("../../../assets/images/User_large.png")} />
             <View style={styles.deleteBtn}>
               <Text style={styles.delete}>x</Text>
             </View>
@@ -26,12 +31,14 @@ const ProfileScreen = () => {
           <TouchableOpacity
             activeOpacity={0.5}
             style={styles.exitBtn}
-            // onPress={() => navigation.navigate("Login")}
+            onPress={singOut}
           >
             <Feather name="log-out" size={24} color="#BDBDBD" />
           </TouchableOpacity>
           <Text style={styles.userName}>Natali Romanova</Text>
         </View>
+
+        <View></View>
       </ImageBackground>
     </View>
   );

@@ -11,6 +11,8 @@ import {
   ImageBackground,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSingInUser } from "../../redux/auth/authOperations";
 
 const initialState = {
   email: "",
@@ -19,9 +21,11 @@ const initialState = {
 
 const LoginScreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
+  const dispatch = useDispatch();
 
   const submitForm = () => {
-    console.log(state);
+    Keyboard.dismiss();
+    dispatch(authSingInUser(state));
     setState(initialState);
   };
   return (
@@ -29,7 +33,7 @@ const LoginScreen = ({ navigation }) => {
       <View style={styles.container}>
         <ImageBackground
           style={styles.imageBackground}
-          source={require("../../assets/images/background-img.png")}
+          source={require("../../../assets/images/background-img.png")}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}

@@ -11,18 +11,23 @@ import {
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authLogUpUser } from "../../redux/auth/authOperations";
 
 const initialState = {
-  name: "",
+  nickname: "",
   email: "",
   password: "",
 };
 
 const RegistrationScreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
+  const dispatch = useDispatch();
 
   const submitForm = () => {
-    console.log(state);
+    Keyboard.dismiss();
+    // console.log(state);
+    dispatch(authLogUpUser(state));
     setState(initialState);
   };
 
@@ -31,7 +36,7 @@ const RegistrationScreen = ({ navigation }) => {
       <View style={styles.container}>
         <ImageBackground
           style={styles.imageBackground}
-          source={require("../../assets/images/background-img.png")}
+          source={require("../../../assets/images/background-img.png")}
         >
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -47,9 +52,9 @@ const RegistrationScreen = ({ navigation }) => {
               style={styles.input}
               placeholder={"Login"}
               placeholderTextColor={"#BDBDBD"}
-              value={state.name}
+              value={state.nickname}
               onChangeText={(value) =>
-                setState((prevState) => ({ ...prevState, name: value }))
+                setState((prevState) => ({ ...prevState, nickname: value }))
               }
             />
             <TextInput

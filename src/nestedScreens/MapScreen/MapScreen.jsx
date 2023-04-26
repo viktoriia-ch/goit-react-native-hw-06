@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 const MapScreen = ({ route }) => {
@@ -9,8 +9,8 @@ const MapScreen = ({ route }) => {
 
   useEffect(() => {
     if (route.params) {
-      setLatitude(route.params.latitude);
-      setLongitude(route.params.longitude);
+      setLatitude(route.params.location.latitude);
+      setLongitude(route.params.location.longitude);
     }
   }, [route.params]);
 
@@ -18,18 +18,18 @@ const MapScreen = ({ route }) => {
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: latitude,
-          longitude: longitude,
-          latitudeDelta: "0.1",
-          longitudeDelta: "0.1",
+        region={{
+          latitude,
+          longitude,
+          latitudeDelta: "0.01",
+          longitudeDelta: "0.01",
         }}
       >
         <Marker
           title="travelPhoto"
           coordinate={{
-            latitude: latitude,
-            longitude: longitude,
+            latitude,
+            longitude,
           }}
         />
       </MapView>

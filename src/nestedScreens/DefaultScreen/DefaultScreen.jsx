@@ -8,21 +8,28 @@ import {
   StyleSheet,
 } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/config";
 
-const DefaultScreen = ({ route, navigation }) => {
+const DefaultScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
-  console.log(route.params);
+
+  const getAllPosts = async () => {
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    querySnapshot.forEach((doc) => {
+      const post = { ...doc.data(), id: doc.id };
+      setPosts((prevState) => [...prevState, post]);
+    });
+  };
 
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
+    getAllPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.infoBlock}>
-        <Image source={require("../../assets/images/User.png")} />
+        <Image source={require("../../../assets/images/User.png")} />
         <View style={styles.textBlock}>
           <Text style={styles.name}>Natali Romanova</Text>
           <Text style={styles.email}>email@example.com</Text>
@@ -38,7 +45,11 @@ const DefaultScreen = ({ route, navigation }) => {
             <Image source={{ uri: item.photo }} style={styles.photo} />
             <Text style={styles.photoName}>{item.name}</Text>
             <View style={styles.btnContainer}>
-              <TouchableOpacity onPress={() => navigation.navigate("Comments")}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("Comments", { postId: item.id })
+                }
+              >
                 <View>
                   <EvilIcons name="comment" size={24} color="black" />
                 </View>
@@ -47,14 +58,12 @@ const DefaultScreen = ({ route, navigation }) => {
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate("Map", {
-                    latitude: item.latitude,
-                    longitude: item.longitude,
+                    location: item.location,
                   })
                 }
               >
                 <View style={styles.mapContainer}>
                   <EvilIcons name="location" size={24} color="black" />
-                  <Text>{item.location}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -103,7 +112,6 @@ const styles = StyleSheet.create({
   photo: {
     height: 240,
     width: 343,
-    borderRadius: 8,
   },
 
   btnContainer: {
